@@ -1,0 +1,16 @@
+[project]
+name = "tjsp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=3.0.0",
+    "requests>=2.32.5",
+    "tabula-py>=2.10.0",
+]
+
+[dependency-groups]
+dev = [
+    "notebook>=7.5.3",
+]

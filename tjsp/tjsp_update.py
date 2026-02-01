@@ -1,35 +1,29 @@
-"""
-
-
-"""
-
-
+""" """
 
 import sys
-import tabula
-import requests
-import pandas as pd
 from io import BytesIO
-
-
 from pathlib import Path
 
-
-def get_data():
-    # Requests
-    url = 'https://www.tjsp.jus.br/Download/Tabelas/TabelaDebitosJudiciais.pdf'
-    r = requests.get(url, allow_redirects=True)
-    return r
+import pandas as pd
+import requests
+import tabula
 
 
-def save_pdf(input_path):
-    # Requests
-    r = get_data()
+# def get_data():
+#     # Requests
+#     url = 'https://www.tjsp.jus.br/Download/Tabelas/TabelaDebitosJudiciais.pdf'
+#     r = requests.get(url, allow_redirects=True)
+#     return r
 
-    # Save PDF file
-    open(input_path / 'tabela_debitos_judiciais.pdf', 'wb').write(r.content)
 
-    return 0
+# def save_pdf(input_path):
+#     # Requests
+#     r = get_data()
+
+#     # Save PDF file
+#     open(input_path / 'tabela_debitos_judiciais.pdf', 'wb').write(r.content)
+
+#     return 0
 
 
 def get_table():
@@ -55,12 +49,14 @@ def get_table():
     df = df.reset_index()
 
     # Rename Columns
-    df.rename(columns={'level_1': 'ano', 0: 'taxa'}, inplace=True, errors='ignore')
+    df.rename(
+        columns={'level_1': 'ano', 0: 'taxa'}, inplace=True, errors='ignore'
+    )
 
     # Rename Values
     dict_mes = {
         'JAN': 1,
-        'FEV': 2, 
+        'FEV': 2,
         'MAR': 3,
         'ABR': 4,
         'MAI': 5,
@@ -102,7 +98,9 @@ def get_table():
 
     # Sortear
     df.sort_values('data', inplace=True)
-    df = df.reindex(columns=['data', 'data_ref', 'ano', 'mes', 'taxa_string', 'taxa'], copy=True)
+    df = df.reindex(
+        columns=['data', 'data_ref', 'ano', 'mes', 'taxa_string', 'taxa'],
+        copy=True,
+    )
     df.reset_index(drop=True, inplace=True)
     return df
-

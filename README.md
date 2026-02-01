@@ -1,7 +1,5 @@
 # Correção Monetária de Débitos Judiciais
 
-<br>
-
 O [Tribunal de Justiça do Estado de São Paulo](https://www.tjsp.jus.br/) disponibiliza mensalmente as taxas para
 calcular a correção monetária de multas e débitos judiciais. As taxas atualizadas são divulgadas por meio de um arquivo
 em formato _.pdf_,

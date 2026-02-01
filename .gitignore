@@ -1,6 +1,10 @@
 # IDEs
 .idea/
+.vs/
 .vscode/
+
+# Pastas
+_lixo/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
