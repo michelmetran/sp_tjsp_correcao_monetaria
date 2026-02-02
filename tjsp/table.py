@@ -6,13 +6,16 @@ do Tribunal de Justiça de São Paulo (TJSP), incluindo limpeza de dados, normal
 de datas e filtragem de registros.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 from io import BytesIO
+from pathlib import Path
 
 import pandas as pd
 import requests_cache
 import tabula
 from tabula.io import read_pdf
+
+from tjsp.paths import data_path
 
 
 def fix_table(df):
@@ -88,14 +91,18 @@ class TJSP:
             self.dfs (list): Lista de DataFrames extraídos do PDF.
         """
         # Requests
-        session = requests_cache.CachedSession('tjsp_cache')
-        r = session.get(
+        session = requests_cache.CachedSession(
+            cache_name=data_path / 'tjsp_cache',
+            backend='sqlite',
+            expire_after=3600,  # Opcional: expira em 1 hora (3600 segundos)
+        )
+        self.r = session.get(
             url=self.url,
         )
 
         # Read PDF
         self.dfs = read_pdf(
-            input_path=BytesIO(r.content),
+            input_path=BytesIO(self.r.content),
             pages='all',
             stream=True,
         )
@@ -254,15 +261,15 @@ class TJSP:
         df['data_ref'] = df['data'].dt.strftime('%Y-%m')
 
         # Drop
-        df.drop(
+        df = df.drop(
             ['year', 'month', 'day'],
             axis=1,
-            inplace=True,
+            inplace=False,
             errors='ignore',
         )
 
         # Sortear
-        df.sort_values('data', inplace=True)
+        df = df.sort_values('data', inplace=False)
 
         # Results
         self.df = df
@@ -281,7 +288,6 @@ class TJSP:
         Resultado:
             self.df (pd.DataFrame): DataFrame com taxa normalizada.
         """
-        df = self.df
         # Ajusta Taxa
         self.df['taxa_string'] = self.df['taxa']
         self.df['taxa'] = self.df['taxa'].str.replace('-', '', regex=True)
@@ -345,18 +351,38 @@ class TJSP:
             inplace=False,
         )
 
-    def get_value_from_date(self, date):
+    def get_value_from_date(self, data):
         # Ajust Date
-        if isinstance(date, str):
-            date_fix = datetime.strptime(date, '%Y-%m-%d')
-        elif isinstance(date, datetime):
-            date_fix = date
+        if isinstance(data, str):
+            date_fix = datetime.strptime(data, '%Y-%m-%d')
+        elif isinstance(data, date):
+            date_fix = data
         else:
             raise Exception('Precisa ser string ou date')
-        
 
         # Json
         mask = (self.df['mes'] == date_fix.month) & (
             self.df['ano'] >= date_fix.year
         )
         return self.df.loc[mask].to_dict('records')[0]
+
+    def get_last_value(self):
+
+        return self.df.iloc[-1].to_dict()
+
+    def save_pdf(self, filepath: str | Path = 'tabela_debitos_judiciais.pdf'):
+
+        # Verificamos se a requisição deu certo antes de salvar
+        if self.r.status_code == 200:
+            with open(file=filepath, mode='wb') as f:
+                f.write(self.r.content)
+
+        else:
+            print(f"Erro ao baixar o arquivo: {self.r.status_code}")
+
+    def save_csv(self, filepath: str | Path = 'tabela_debitos_judiciais.csv'):
+        self.df.to_csv(
+            filepath,
+            index=False,
+            decimal=',',
+        )
