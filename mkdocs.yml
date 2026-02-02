@@ -1,12 +1,12 @@
 # Basic
-site_name: UFESP
+site_name: Correção Monetária de Débitos Judiciais
 site_author: Michel Metran
-site_url: https://ufesp.readthedocs.io/
+site_url: https://tjsp_correcao_monetaria.readthedocs.io/
 copyright: |
   &copy; 2026 <a href="https://github.com/michelmetran"  target="_blank" rel="noopener">Michel Metran</a>
 
 # GitHub Repo Link
-repo_url: https://github.com/michelmetran/ufesp
+repo_url: https://github.com/michelmetran/tjsp_correcao_monetaria
 
 docs_dir: "docs" # Default docs
 site_dir: "site" # Default site
